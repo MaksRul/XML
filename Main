@@ -1,0 +1,55 @@
+import org.w3c.dom.*;
+import org.xml.sax.SAXException;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.IOException;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
+
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+            Document document = builder.parse("Trains.xml");
+            Node root = document.getDocumentElement();
+            Train train = new Train(3, "Khmelnytskyi", "Lviv", "04:09:2020", "12:00");
+            NodeList trains = root.getChildNodes();
+            ArrayList<Train> trainsAll = new ArrayList<>();
+            trainsAll.add(train);
+            trainsAll.add((Train) trains);
+            train.addTrein(train, document);
+            for (Train t : trainsAll) {
+                List<String> departures = new ArrayList<String>(10);
+                String departure = t.getDeparture();
+                departures.add(departure);
+                for (int i = 0; i < departures.size(); i++) {
+                    int hour = Integer.parseInt(departures.get(0));
+                    int min = Integer.parseInt(departures.get(1));
+                    if (hour > 14 && hour < 19) {
+                        continue;
+                    }
+                    if (min <= 59) {
+                        Field[] fields = train.getClass().getDeclaredFields();
+                        for (Field field : fields) {
+                            if (field.isAccessible()) {
+                                System.out.println(field.getName() + "\t" + field.get(train));
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (ParserConfigurationException parserConfigurationException) {
+            parserConfigurationException.printStackTrace();
+        } catch (IOException ioException) {
+            ioException.printStackTrace();
+        } catch (SAXException saxException) {
+            saxException.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+    }
+}
